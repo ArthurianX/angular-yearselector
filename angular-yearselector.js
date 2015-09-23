@@ -1,6 +1,6 @@
 "use strict";
 
-if (typeof moment == 'undefined') {
+if (typeof moment === 'undefined') {
     var moment;
     throw "Exception: moment.js is undefined. Please add the library as a dependency to your project";
 }
@@ -77,6 +77,7 @@ angular.module('yearSelector')
 
                     var defaults = {
                         years: 10,
+                        months: false,
                         model: '',
                         attachTo: false,
                         attachNow: false,
@@ -92,7 +93,10 @@ angular.module('yearSelector')
                     scope.yearsSelDRP = [];
                     scope.dragEnabled = false;
                     scope.buttonSize = 40;
+
                     var isRanged = true;
+                    var attachEl;
+                    var isMonthsEnabled = false;
                     var startDate, yearsNumber, setModel, blockWidth ;
 
 
@@ -183,8 +187,12 @@ angular.module('yearSelector')
 
                     /** Years Selection */
 
-                    scope.selectYear = function(year) {
+                    scope.selectYear = function(year, event) {
                         //TODO: Disable / Enable range
+                        if (isMonthsEnabled) {
+                            showMonthSelector(event);
+                        }
+
                         var indexToPush = findIndex(scope.yearsSelDRP, 'year', year);
 
                         if (activeMap.indexOf(indexToPush) > -1) {
@@ -273,7 +281,7 @@ angular.module('yearSelector')
 
                     var startAttaching = function(el){
 
-                        var attachEl = angular.element($document[0].querySelector(el));
+                        attachEl = angular.element($document[0].querySelector(el));
 
                         buttonSizing(attachEl);
 
@@ -284,7 +292,38 @@ angular.module('yearSelector')
                         });
                     };
 
+                    var showMonthSelector = function(event){
+                        console.log(event);
+                        scope.mumu = function(){
+                            console.log('mumu');
+                        };
+                        var months = '<div class="ms" ng-click="mumu()">1 2</div>';
+                        var activeYear = angular.element(event.srcElement);
+                        if (activeYear[0].querySelector('.ms')) {
+                            console.log('It exists');
+                        } else {
+                            activeYear.append(months);
+                            $compile(months)(scope);
+                        }
 
+
+
+
+                        /*attachEl.on('mousedown', function(event){
+
+                            var handle = angular.element(event.srcElement);
+                            if (handle.hasClass('active')){
+                                startDrag = handle[0].tabIndex;
+                                cursor.css('left', handle.prop('offsetLeft') + 'px');
+                                $timeout(function(){
+                                    $document.on('mousemove', mousemove);
+                                    $document.on('mouseup', mouseup);
+                                }, 100);
+                            }
+
+                        });*/
+
+                    };
 
                     scope.$watch(attrs.yearSelector,function(options){
 
@@ -321,6 +360,10 @@ angular.module('yearSelector')
                         } else {
                             //Do the size calculation only if it's not attached.
                             buttonSizing(element);
+                        }
+
+                        if (options.months) {
+                            isMonthsEnabled = true;
                         }
 
                         setModel = function(param){
